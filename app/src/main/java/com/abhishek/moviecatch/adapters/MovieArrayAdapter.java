@@ -20,6 +20,12 @@ import java.util.List;
  */
 public class MovieArrayAdapter extends ArrayAdapter<Movie> {
 
+    private static class ViewHolder {
+        ImageView imageView;
+        TextView textViewTitle;
+        TextView textViewOverview;
+    }
+
     public MovieArrayAdapter(Context context, List<Movie> movies){
         super(context, android.R.layout.simple_list_item_1, movies);
     }
@@ -29,27 +35,36 @@ public class MovieArrayAdapter extends ArrayAdapter<Movie> {
         //get the data item for the position
         Movie movie = getItem(position);
 
+        ViewHolder viewHolder;
         //check if the existing view is being reused
         if(convertView==null){
+            viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.item_movie, parent, false);
+            viewHolder.imageView = (ImageView) convertView.findViewById(R.id.IvMovieImage);
+            viewHolder.textViewTitle = (TextView) convertView.findViewById(R.id.TvTitle);
+            viewHolder.textViewOverview = (TextView) convertView.findViewById(R.id.TvOverview);
+            // Cache the viewHolder object inside the fresh view
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        //get references
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.IvMovieImage);
-        TextView textViewTitle = (TextView) convertView.findViewById(R.id.TvTitle);
-        TextView textViewOverview = (TextView) convertView.findViewById(R.id.TvOverview);
+//    //get references
+//        ImageView imageView = (ImageView) convertView.findViewById(R.id.IvMovieImage);
+//        TextView textViewTitle = (TextView) convertView.findViewById(R.id.TvTitle);
+//        TextView textViewOverview = (TextView) convertView.findViewById(R.id.TvOverview);
 
         //populate the data
         int orientation = getContext().getResources().getConfiguration().orientation;
         if(orientation== Configuration.ORIENTATION_PORTRAIT){
-            Picasso.with(getContext()).load(movie.getPosterPath()).into(imageView);
+            Picasso.with(getContext()).load(movie.getPosterPath()).into(viewHolder.imageView);
         }else{
-            Picasso.with(getContext()).load(movie.getBackdropPath()).into(imageView);
+            Picasso.with(getContext()).load(movie.getBackdropPath()).into(viewHolder.imageView);
         }
 
-        textViewTitle.setText(movie.getOriginalTitle());
-        textViewOverview.setText(movie.getOverView());
+        viewHolder.textViewTitle.setText(movie.getOriginalTitle());
+        viewHolder.textViewOverview.setText(movie.getOverView());
 
         return convertView;
     }
